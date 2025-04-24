@@ -2,23 +2,23 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 function App() {
-  const [matches, setMatches] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const matchesPerPage = 3;
+  let [matches, setMatches] = useState([]);
+  let [currentPage, setCurrentPage] = useState(1);
+  let matchesPerPage = 3;
 
   useEffect(() => {
-    const fetchMatches = async () => {
+    let fetchMatches = async () => {
       try {
-        const [res15, res16] = await Promise.all([
+        let [res15, res16] = await Promise.all([
           axios.get('https://api.sofascore.com/api/v1/sport/football/scheduled-events/2025-04-15'),
           axios.get('https://api.sofascore.com/api/v1/sport/football/scheduled-events/2025-04-16'),
         ]);
   
         
-        const allMatches = [...res15.data.events, ...res16.data.events];
+        let allMatches = [...res15.data.events, ...res16.data.events];
   
-        const filteredMatches = allMatches.filter((match) => {
-          const dateUTC = new Date(match.startTimestamp * 1000).toISOString().split('T')[0];
+        let filteredMatches = allMatches.filter((match) => {
+          let dateUTC = new Date(match.startTimestamp * 1000).toISOString().split('T')[0];
           return dateUTC === '2025-04-15' || dateUTC === '2025-04-16';
         });
   
@@ -30,11 +30,11 @@ function App() {
     fetchMatches();
   }, []);
 
-  const indexOfLastMatch = currentPage * matchesPerPage;
-  const indexOfFirstMatch = indexOfLastMatch - matchesPerPage;
-  const currentMatches = matches.slice(indexOfFirstMatch, indexOfLastMatch);
+  let indexOfLastMatch = currentPage * matchesPerPage;
+  let indexOfFirstMatch = indexOfLastMatch - matchesPerPage;
+  let currentMatches = matches.slice(indexOfFirstMatch, indexOfLastMatch);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  let paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="App">
