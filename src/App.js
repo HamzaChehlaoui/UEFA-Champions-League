@@ -77,19 +77,17 @@ function FootballMatchesApp() {
     const fetchMatches = async () => {
       setIsLoading(true);
       try {
-        // Create array of promises for all fetch requests
+
         const datePromises = MATCH_DATES.map(date => 
           axios.get(`${API_BASE_URL}/sport/football/scheduled-events/${date}`)
         );
         
-        // Wait for all requests to complete
+
         const responses = await Promise.all(datePromises);
         
-        // Combine and process all match data
         const allMatches = responses.flatMap(response => response.data.events || []);
         const filteredMatches = filterMatchesByDates(allMatches);
         
-        // Enhance matches with detailed information
         const enhancedMatches = await Promise.all(
           filteredMatches.map(fetchMatchDetails)
         );
@@ -117,53 +115,51 @@ function FootballMatchesApp() {
     setCurrentPage(pageNumber);
   };
 
-  // Generate pagination numbers with ellipsis for large page counts
   const getPaginationNumbers = () => {
     const pageNumbers = [];
     
     if (totalPages <= 7) {
-      // Show all pages if 7 or fewer
+
       for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
       }
     } else {
-      // Always show first page
+
       pageNumbers.push(1);
       
-      // Calculate range around current page
+
       let rangeStart = Math.max(2, currentPage - 1);
       let rangeEnd = Math.min(totalPages - 1, currentPage + 1);
       
-      // Adjust range to show 3 pages
       if (currentPage <= 3) {
         rangeEnd = 4;
       } else if (currentPage >= totalPages - 2) {
         rangeStart = totalPages - 3;
       }
       
-      // Add ellipsis before range if needed
+
       if (rangeStart > 2) {
         pageNumbers.push('...');
       }
       
-      // Add range pages
+
       for (let i = rangeStart; i <= rangeEnd; i++) {
         pageNumbers.push(i);
       }
       
-      // Add ellipsis after range if needed
+
       if (rangeEnd < totalPages - 1) {
         pageNumbers.push('...');
       }
       
-      // Always show last page
+
       pageNumbers.push(totalPages);
     }
     
     return pageNumbers;
   };
 
-  // Component to display match information
+
   const MatchCard = ({ match }) => {
     const statusInfo = getStatusInfo(match.status?.type);
     
@@ -273,7 +269,6 @@ function FootballMatchesApp() {
     );
   };
 
-  // Pagination controls component with improved pagination display
   const PaginationControls = () => (
     <div className="flex justify-between items-center mt-8 pt-4 border-t border-gray-200">
       <button 
