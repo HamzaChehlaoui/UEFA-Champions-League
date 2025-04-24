@@ -24,7 +24,30 @@ function App() {
           return dateUTC === '2025-04-15' || dateUTC === '2025-04-16';
         });
         
-        setMatches(filteredMatches);
+        // Pour chaque match terminé, récupérer les détails qui pourraient inclure le Man of the Match
+        const enhancedMatches = await Promise.all(
+          filteredMatches.map(async (match) => {
+            if (match.status?.type === 'finished') {
+              try {
+                // Récupérer les détails du match qui pourraient contenir le Man of the Match
+                const detailsResponse = await axios.get(`https://api.sofascore.com/api/v1/event/${match.id}`);
+                
+                // Si l'API renvoie des informations sur le Man of the Match
+                if (detailsResponse.data?.event?.bestPlayer) {
+                  return {
+                    ...match,
+                    manOfTheMatch: detailsResponse.data.event.bestPlayer
+                  };
+                }
+              } catch (error) {
+                console.error(`Error fetching details for match ${match.id}:`, error);
+              }
+            }
+            return match;
+          })
+        );
+        
+        setMatches(enhancedMatches);
       } catch (error) {
         console.error('Error fetching matches:', error);
         setError('Unable to load matches. Please try again later.');
@@ -124,6 +147,13 @@ function App() {
                           <div className="font-bold text-lg">{match.awayTeam.name}</div>
                         )}
                       </div>
+                      
+                      {/* Afficher le score si le match est en cours ou terminé */}
+                      {(match.status?.type === 'inprogress' || match.status?.type === 'finished') && match.homeScore?.current !== undefined && match.awayScore?.current !== undefined && (
+                        <div className="text-xl font-bold">
+                          {match.homeScore.current} - {match.awayScore.current}
+                        </div>
+                      )}
                     </div>
                     
                     <div className="flex flex-wrap text-sm text-gray-600 gap-4">
@@ -142,6 +172,21 @@ function App() {
                         </div>
                       )}
                     </div>
+                    
+                    {/* Afficher Man of the Match pour les matchs terminés */}
+                    {match.status?.type === 'finished' && (
+                      <div className="mt-3 pt-3 border-t border-gray-100">
+                        <div className="flex items-center">
+                          <span className="mr-2 text-yellow-500">🏆</span>
+                          <span className="font-medium">Man of the Match:</span>
+                          {match.manOfTheMatch ? (
+                            <span className="ml-2 text-blue-600 font-medium">{match.manOfTheMatch.name}</span>
+                          ) : (
+                            <span className="ml-2 italic text-gray-500">Not yet announced</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))
